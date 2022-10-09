@@ -85,6 +85,9 @@ try {
       repo: context.repo.repo,
       ref: context.ref,
       auto_merge: false,
+      // @ts-ignore
+      environment: branch === "prod" ? "Production" : "Preview",
+      production_environment: branch === "prod",
       description: "Cloudflare Pages",
       required_contexts: [],
     });
@@ -98,12 +101,10 @@ try {
     id,
     url,
     environmentName,
-    productionEnvironment,
   }: {
     id: number;
     url: string;
     environmentName: string;
-    productionEnvironment: boolean;
   }) => {
     await octokit.rest.repos.createDeploymentStatus({
       owner: context.repo.owner,
@@ -112,7 +113,6 @@ try {
       // @ts-ignore
       environment: environmentName,
       environment_url: url,
-      production_environment: productionEnvironment,
       log_url: `https://dash.cloudflare.com/${accountId}/pages/view/${projectName}/${id}`,
       description: "Cloudflare Pages",
       state: "success",
@@ -128,17 +128,17 @@ try {
     setOutput("url", pagesDeployment.url);
     setOutput("environment", pagesDeployment.environment);
 
+    const url = new URL(pagesDeployment.url);
     const productionEnvironment = pagesDeployment.environment === "production";
     const environmentName = productionEnvironment
       ? "Production"
-      : "Preview";
+      : `Preview (${url.host.split(".")[0]})`;
 
     if (gitHubDeployment) {
       await createGitHubDeploymentStatus({
         id: gitHubDeployment.id,
         url: pagesDeployment.url,
         environmentName,
-        productionEnvironment,
       });
     }
   })();
