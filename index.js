@@ -22102,14 +22102,12 @@ try {
   };
   const createGitHubDeploymentStatus = async ({
     id,
-    url,
-    environmentName
+    url
   }) => {
     await octokit.rest.repos.createDeploymentStatus({
       owner: import_github.context.repo.owner,
       repo: import_github.context.repo.repo,
       deployment_id: id,
-      environment: environmentName,
       environment_url: url,
       log_url: `https://dash.cloudflare.com/${accountId}/pages/view/${projectName}/${id}`,
       description: "Cloudflare Pages",
@@ -22122,14 +22120,10 @@ try {
     (0, import_core.setOutput)("id", pagesDeployment.id);
     (0, import_core.setOutput)("url", pagesDeployment.url);
     (0, import_core.setOutput)("environment", pagesDeployment.environment);
-    const url = new URL(pagesDeployment.url);
-    const productionEnvironment = pagesDeployment.environment === "production";
-    const environmentName = productionEnvironment ? "Production" : `Preview (${url.host.split(".")[0]})`;
     if (gitHubDeployment) {
       await createGitHubDeploymentStatus({
         id: gitHubDeployment.id,
-        url: pagesDeployment.url,
-        environmentName
+        url: pagesDeployment.url
       });
     }
   })();

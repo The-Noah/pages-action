@@ -100,18 +100,14 @@ try {
   const createGitHubDeploymentStatus = async ({
     id,
     url,
-    environmentName,
   }: {
     id: number;
     url: string;
-    environmentName: string;
   }) => {
     await octokit.rest.repos.createDeploymentStatus({
       owner: context.repo.owner,
       repo: context.repo.repo,
       deployment_id: id,
-      // @ts-ignore
-      environment: environmentName,
       environment_url: url,
       log_url: `https://dash.cloudflare.com/${accountId}/pages/view/${projectName}/${id}`,
       description: "Cloudflare Pages",
@@ -128,17 +124,10 @@ try {
     setOutput("url", pagesDeployment.url);
     setOutput("environment", pagesDeployment.environment);
 
-    const url = new URL(pagesDeployment.url);
-    const productionEnvironment = pagesDeployment.environment === "production";
-    const environmentName = productionEnvironment
-      ? "Production"
-      : `Preview (${url.host.split(".")[0]})`;
-
     if (gitHubDeployment) {
       await createGitHubDeploymentStatus({
         id: gitHubDeployment.id,
         url: pagesDeployment.url,
-        environmentName,
       });
     }
   })();
