@@ -64,7 +64,7 @@ try {
     if ${accountId} {
       $ export CLOUDFLARE_ACCOUNT_ID="${accountId}"
     }
-  
+
     $$ npx wrangler@2 pages publish "${directory}" --project-name="${projectName}" --branch="${branch}"
     `;
 
@@ -128,11 +128,10 @@ try {
     setOutput("url", pagesDeployment.url);
     setOutput("environment", pagesDeployment.environment);
 
-    const url = new URL(pagesDeployment.url);
     const productionEnvironment = pagesDeployment.environment === "production";
     const environmentName = productionEnvironment
       ? "Production"
-      : `Preview (${url.host.split(".")[0]})`;
+      : "Preview";
 
     if (gitHubDeployment) {
       await createGitHubDeploymentStatus({
